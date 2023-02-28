@@ -61,7 +61,7 @@ struct TimeCell: View {
             DatePicker("End", selection: $timeEnd, displayedComponents: .hourAndMinute)
             Button {
                 Task {
-                    await viewModel.addRule()
+                    viewModel.addRule()
                 }
             } label: {
                 Text("Add")

@@ -28,33 +28,32 @@ struct TemperaturePoolCellSmall: View {
     @EnvironmentObject var viewModel: ViewModel
     
     var body: some View {
-        HStack (alignment: .center){
-            Spacer()
-            HStack {
-                VStack {
-                    Text("Temperature")
-                    Text("Pool")
-                }
+        NavigationLink(destination: TemperatureChartView()) {
+            HStack (alignment: .center){
                 Spacer()
-                
-                if viewModel.isCelciusSelected {
-                    Text(String(viewModel.currentPoolTemperature).appending(" °C"))
-                        .font(.title)
-                        .bold()
-                } else {
-                    var tempF = round((viewModel.currentPoolTemperature * (9/5) + 32) * 10) / 10.0
-                    Text(String(tempF).appending(" °F"))
-                        .font(.title)
-                        .bold()
+                HStack {
+                    VStack {
+                        Text("Temperature")
+                        Text("Pool")
+                    }
+                    Spacer()
+                    
+                    if viewModel.isCelciusSelected {
+                        Text(String(viewModel.currentPoolTemperature).appending(" °C"))
+                            .font(.title)
+                            .bold()
+                    } else {
+                        let tempF = round((viewModel.currentPoolTemperature * (9/5) + 32) * 10) / 10.0
+                        Text(String(tempF).appending(" °F"))
+                            .font(.title)
+                            .bold()
+                    }
                 }
+                .padding()
+                
+                Spacer()
             }
-            .padding()
-            
-            Spacer()
-        }
-        .cornerRadius(10)
-        .onAppear() {
-            viewModel.startTimer()
+            .cornerRadius(10)
         }
     }
 }
@@ -92,17 +91,22 @@ struct PumpSwitchCellSmall: View {
     @EnvironmentObject var viewModel: ViewModel
     
     var body: some View {
-        HStack {
-            Spacer()
-            Toggle("Pump", isOn: $viewModel.isPumpOn)
-                .onChange(of: viewModel.isPumpOn) { currentState in
-                    Task {
-                        await viewModel.controlDevices(state: currentState, deviceName: "Pump")
+        NavigationLink(destination: DetailedPumpView()){
+            HStack {
+                Spacer()
+                Toggle("Pump", isOn: $viewModel.isPumpOn)
+                    .onChange(of: viewModel.isPumpOn) { currentState in
+                        Task {
+                            await viewModel.controlDevices(state: currentState, deviceName: "Pump")
+                        }
                     }
-                }
-            Spacer()            
+                    // the toggle is disabled when the automaticmode is on
+                    .disabled(viewModel.isAutomaticModeOn)
+                Spacer()
+            }
+            .padding()
         }
-        .padding()
+        .buttonStyle(.plain)
     }
 }
 
@@ -117,10 +121,8 @@ struct ModeSwitchCellSmall: View {
                     Task {
                         await viewModel.controlDevices(state: currentState, deviceName: "AutomaticMode")
                     }
-//                    if on {
-//                        viewModel.sendNotificaton()
-//                    }
                 }
+                .padding(.trailing, 20)
             Spacer()
         }
         .padding()
@@ -139,6 +141,9 @@ struct SaltmasterSwitchCellSmall: View {
                         await viewModel.controlDevices(state: currentState, deviceName: "Saltmaster_SaltChannel")
                     }
                 }
+                .padding(.trailing, 20)
+                // the toggle is disabled when the automaticmode is on or the pump is off
+                .disabled(viewModel.isAutomaticModeOn || !viewModel.isPumpOn)
             Spacer()
         }
         .padding()

@@ -30,11 +30,5 @@ struct PoolMasterApp: App {
             }
             .environmentObject(ViewModel())
         }
-        // save state of the app when
-//        .onChange(of: scenePhase) { phase in
-//            if phase == .background {
-//                ViewModel().saveUserDefaults()
-//            }
-//        }
     }
 }

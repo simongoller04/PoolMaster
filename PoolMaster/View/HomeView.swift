@@ -10,9 +10,6 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var viewModel: ViewModel
     @State private var showPopOver = false
-    
-    var cell =  Cell(cellType: .temperaturePoolCellSmall, name: "Temperature Pool", category: .information)
-    
 
     var body: some View {
         List {
@@ -25,9 +22,7 @@ struct HomeView: View {
 
             Section (header: Text("Controlls")) {
                 ForEach(viewModel.controllsArray, id: \.self) { cell in
-                    NavigationLink(destination: DetailedPumpView()){
-                        handleCell(cell: cell.cellType)
-                    }
+                    handleCell(cell: cell.cellType)
                 }
                 .onDelete(perform: deleteControlls)
             }
@@ -46,10 +41,10 @@ struct HomeView: View {
             PopOverView(showPopOver: $showPopOver)
         }
         .onAppear() {
+            viewModel.startTimer()
             if viewModel.firstTimeStartedApp {
                 viewModel.requestNotifications()
             }
-//            viewModel.loadUserDefaults()
         }
     }
     

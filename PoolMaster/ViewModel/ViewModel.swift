@@ -11,7 +11,6 @@ import Combine
 import SwiftUI
 import UserNotifications
 
-
 let cells: [Cell] = [
     Cell(cellType: .temperaturePoolCellSmall, name: "Temperature Pool", category: .information),
     Cell(cellType: .temperatureOutsideCellSmall, name: "Temperature Outside", category: .information),
@@ -27,7 +26,9 @@ class ViewModel: ObservableObject{
     @Published var isPumpOn: Bool = false
     @Published var isAutomaticModeOn: Bool = false
     @Published var isSaltmasterOn: Bool = false
+    
     @Published var currentPoolTemperature: Double = 23.5
+    @Published var temperatureArray: [Temperature] = []
     
     @Published var informationsArray: [Cell] = []
     @Published var controllsArray: [Cell] = []
@@ -99,6 +100,75 @@ class ViewModel: ObservableObject{
                 
                 DispatchQueue.main.async {
                     self.currentPoolTemperature = temp
+                    
+                    if self.temperatureArray.count > 10 {
+                        self.temperatureArray.append(Temperature(temperature: temp, date: Date.now))
+                        self.temperatureArray.removeFirst()
+                    }
+                    else {
+                        self.temperatureArray.append(Temperature(temperature: temp, date: Date.now))
+                    }
+                }
+            }
+
+            if let error = error {
+                print("HTTP Request Failed \(error)")
+            }
+
+            if let response = response {
+                print(response)
+            }
+        }
+        task.resume()
+    }
+    
+    func getCurrentDeviceState(deviceName: String) async {
+        let loginString = String(format: "%@:%@", username, password)
+        let loginData = loginString.data(using: String.Encoding.utf8)!
+        let base64LoginString = loginData.base64EncodedString()
+        
+        guard let url = URL(string: "https://myopenhab.org:443/rest/items/\(deviceName)/state") else {
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.addValue("text/plain", forHTTPHeaderField: "Content-Type")
+        request.addValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "GET"
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            
+            if let data = data {
+                guard let state = String(data: data, encoding: .utf8) else {
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    switch deviceName {
+                    case "Pump":
+                        if state == "ON" {
+                            self.isPumpOn = true
+                        } else {
+                            self.isPumpOn = false
+                        }
+                        
+                    case "Saltmaster_SaltChannel":
+                        if state == "ON" {
+                            self.isSaltmasterOn = true
+                        } else {
+                            self.isSaltmasterOn = false
+                        }
+                        
+                    case "AutomaticMode":
+                        if state == "ON" {
+                            self.isAutomaticModeOn = true
+                        } else {
+                            self.isAutomaticModeOn = false
+                        }
+                        
+                    default:
+                        break
+                    }
                 }
             }
 
@@ -135,19 +205,25 @@ class ViewModel: ObservableObject{
         task.resume()
     }
     
-    // gets the temperature of the pool from openhab every 30 seconds
+    // gets the temperature of the pool from openhab every 5 seconds
     func startTimer() {
-        Task {
-            await self.getTemperature()
-        }
-       // start timer (tick every 30 seconds)
-       timer = Timer.publish(every: 30, on: .main, in: .common)
+        task()
+        // start timer (tick every 5 seconds)
+        timer = Timer.publish(every: 5, on: .main, in: .common)
            .autoconnect()
            .sink { _ in
-               Task {
-                   await self.getTemperature()
-               }
+                task()
+
            }
+        
+        func task() {
+            Task {
+                await self.getTemperature()
+                await self.getCurrentDeviceState(deviceName: "Saltmaster_SaltChannel")
+                await self.getCurrentDeviceState(deviceName: "Pump")
+                await self.getCurrentDeviceState(deviceName: "AutomaticMode")
+            }
+        }
     }
     
     // this funtion checks if the given ip address is valid

@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct DetailedPumpView: View {
-    @EnvironmentObject var viewModel: DetailedPumpViewModel
     
     var body: some View {
         List {
