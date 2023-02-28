@@ -9,8 +9,7 @@ import SwiftUI
 
 @main
 struct PoolMasterApp: App {
-    @Environment(\.scenePhase) private var scenePhase
-
+    
     var body: some Scene {
         WindowGroup {
             TabView {

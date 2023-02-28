@@ -36,9 +36,3 @@ struct DetailedPumpView: View {
         }
     }
 }
-
-struct DetailedPumpView_Previews: PreviewProvider {
-    static var previews: some View {
-        DetailedPumpView()
-    }
-}

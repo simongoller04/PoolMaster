@@ -15,6 +15,7 @@ struct PumpTimesView: View {
     var body: some View {
         HStack {
             Spacer()
+            
             Button {
                 if viewModel.timeSlotAmount > 1 {
                     viewModel.timeSlotAmount -= 1
@@ -66,8 +67,6 @@ struct TimeCell: View {
             } label: {
                 Text("Add")
             }
-
         }
-
     }
 }

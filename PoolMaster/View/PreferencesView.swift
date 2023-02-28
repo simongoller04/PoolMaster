@@ -68,21 +68,12 @@ struct PersonalInformationView: View {
         }
         
         TextField("Username", text: $username)
-            .onSubmit {
-                viewModel.username = username
-            }
         
         ZStack {
             if showPassword {
                 TextField("Password", text: $password)
-                    .onSubmit {
-                        viewModel.password = password
-                    }
             } else {
                 SecureField("Password", text: $password)
-                    .onSubmit {
-                        viewModel.password = password
-                    }
             }
             
             HStack {
@@ -93,6 +84,19 @@ struct PersonalInformationView: View {
                     Image(systemName: showPassword ? "eye.slash" : "eye")
                 }
             }
+        }
+        HStack {
+            Spacer()
+            
+            Button {
+                viewModel.username = username
+                viewModel.password = password
+            } label: {
+                Text("Login")
+            }
+            .buttonStyle(.automatic)
+            
+            Spacer()
         }
     }
 }

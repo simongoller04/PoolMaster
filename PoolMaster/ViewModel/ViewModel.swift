@@ -11,16 +11,8 @@ import Combine
 import SwiftUI
 import UserNotifications
 
-let cells: [Cell] = [
-    Cell(cellType: .temperaturePoolCellSmall, name: "Temperature Pool", category: .information),
-    Cell(cellType: .temperatureOutsideCellSmall, name: "Temperature Outside", category: .information),
-    Cell(cellType: .pumpSwitchCellSmall, name: "Switch Pump", category: .controll),
-    Cell(cellType: .modeSwitchCellSmall, name: "Switch Automatic Mode", category: .controll),
-    Cell(cellType: .saltmasterSwitchCellSmall, name: "Switch Saltmaster", category: .controll)
-]
-
 @MainActor
-class ViewModel: ObservableObject{
+class ViewModel: ObservableObject {
     @Published var firstTimeStartedApp: Bool = true
     @Published var isCelciusSelected: Bool = true
     @Published var isPumpOn: Bool = false
@@ -45,6 +37,9 @@ class ViewModel: ObservableObject{
         self.isCelciusSelected = bool
     }
     
+}
+
+extension ViewModel {
     // making a call to the openHAB API to control the devices
     func controlDevices(state: Bool, deviceName: String) async {
         

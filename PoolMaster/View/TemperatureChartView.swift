@@ -49,9 +49,13 @@ struct TemperatureChartView: View {
                     HStack {
                         Spacer()
                         
-                        Text("N/A")
-                            .font(.headline)
-                            .bold()
+                        VStack {
+                            Text("N/A")
+                                .font(.largeTitle)
+                                .bold()
+                            
+                            Text("Sign in to view the temperature")
+                        }
                         
                         Spacer()
                     }
@@ -76,21 +80,3 @@ struct TemperatureChartView: View {
         .padding()
     }
 }
-
-func calculateAverage(temperatures: [Temperature]) -> Double {
-    return (temperatures.map { $0.temperature }.reduce(0, +)) / Double(temperatures.count).rounded()
-}
-
-func calculateMin(temperatures: [Temperature]) -> Double {
-    return temperatures.min()!.temperature.rounded()-2
-}
-
-func calculateMax(temperatures: [Temperature]) -> Double {
-    return temperatures.max()!.temperature.rounded()+2
-}
-
-//struct TemperatureChartView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        TemperatureChartView()
-//    }
-//}
